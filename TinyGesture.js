@@ -37,15 +37,22 @@ export default class TinyGesture {
     this._onTouchMove = this.onTouchMove.bind(this);
     this._onTouchEnd = this.onTouchEnd.bind(this);
 
-    this.element.addEventListener('touchstart', this._onTouchStart, passiveIfSupported);
-    this.element.addEventListener('touchmove', this._onTouchMove, passiveIfSupported);
-    this.element.addEventListener('touchend', this._onTouchEnd, passiveIfSupported);
+    this.element.addEventListener('touchstart', this._onTouchStart, this._isPassiveSupported());
+    this.element.addEventListener('touchmove', this._onTouchMove, this._isPassiveSupported());
+    this.element.addEventListener('touchend', this._onTouchEnd, this._isPassiveSupported());
 
     if (this.opts.mouseSupport && !('ontouchstart' in window)) {
-      this.element.addEventListener('mousedown', this._onTouchStart, passiveIfSupported);
-      document.addEventListener('mousemove', this._onTouchMove, passiveIfSupported);
-      document.addEventListener('mouseup', this._onTouchEnd, passiveIfSupported);
+      this.element.addEventListener('mousedown', this._onTouchStart, this._isPassiveSupported());
+      document.addEventListener('mousemove', this._onTouchMove, this._isPassiveSupported());
+      document.addEventListener('mouseup', this._onTouchEnd, this._isPassiveSupported());
     }
+  }
+
+  _isPassiveSupported() {
+    if (this.opts.enablePassiveEvent) {
+      return passiveIfSupported;
+    }
+    return false;
   }
 
   destroy () {
@@ -191,7 +198,8 @@ TinyGesture.defaults = {
   diagonalLimit: Math.tan(45 * 1.5 / 180 * Math.PI),
   longPressTime: 500,
   doubleTapTime: 300,
-  mouseSupport: true
+  mouseSupport: true,
+  enablePassiveEvent: true
 };
 
 // Passive feature detection.
